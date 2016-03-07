@@ -55,11 +55,8 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({do, Arg}, #state{fun_todo = Fun} = State) ->
-  try Fun(Arg) of
-    _ -> ok
-  after
-    throttle:confirm_job(State#state.monitor)
-  end,
+  Fun(Arg),
+  throttle:confirm_job(State#state.monitor),
   {noreply, State};
 handle_cast(_Request, State) ->
   {noreply, State}.
