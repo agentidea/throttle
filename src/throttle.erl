@@ -42,7 +42,7 @@
 %% the first is to be executed on every job, the other is to be executed
 %% if there is an overflow and we begin dropping jobs.
 %% Both args should be a one-argment fun() objects. The "drop function"
-%% defaults to no-op.
+%% efaults to no-op.
 %% Take care of handling errors in your functions, anything you don't catch
 %% crashes the whole throttle.
 %% The last argument says how many jobs may be queued until we begin to drop.
@@ -92,12 +92,12 @@ handle_call(_Request, _From, State) ->
 %%--------------------------------------------------------------------
 handle_cast({do, Arg}, State) ->
   Ct = State#state.counter,
-  if Ct < State#state.limit ->
+  NCt = if Ct < State#state.limit ->
       throttle_worker:start_job(State#state.worker, Arg),
-      NCt = Ct + 1;
+      Ct + 1;
     true ->
       do_apply(State#state.fun_dropped, Arg),
-      NCt = Ct
+      Ct
   end,
   {noreply, State#state{counter = NCt}};
 handle_cast(_Request, State) ->
