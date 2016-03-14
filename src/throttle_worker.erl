@@ -16,11 +16,11 @@
 
 %% gen_server callbacks
 -export([init/1,
-  handle_call/3,
-  handle_cast/2,
-  handle_info/2,
-  terminate/2,
-  code_change/3]).
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3]).
 
 -define(SERVER, ?MODULE).
 
@@ -31,20 +31,20 @@
 %%%===================================================================
 
 start_link(Monitor, Todo) ->
-  gen_server:start_link(?MODULE, [Todo, Monitor], []).
+    gen_server:start_link(?MODULE, [Todo, Monitor], []).
 
 start_job(Pid, Arg) ->
-  gen_server:cast(Pid, {do, Arg}).
+    gen_server:cast(Pid, {do, Arg}).
 
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
 
 init([Todo, Monitor]) ->
-  {ok, #state{fun_todo = Todo, monitor = Monitor}}.
+    {ok, #state{fun_todo = Todo, monitor = Monitor}}.
 
 handle_call(_Request, _From, State) ->
-  {reply, ok, State}.
+    {reply, ok, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -55,20 +55,20 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({do, Arg}, #state{fun_todo = Fun} = State) ->
-  Fun(Arg),
-  throttle:confirm_job(State#state.monitor),
-  {noreply, State};
+    Fun(Arg),
+    throttle:confirm_job(State#state.monitor),
+    {noreply, State};
 handle_cast(_Request, State) ->
-  {noreply, State}.
+    {noreply, State}.
 
 handle_info(_Info, State) ->
-  {noreply, State}.
+    {noreply, State}.
 
 terminate(_Reason, _State) ->
-  ok.
+    ok.
 
 code_change(_OldVsn, State, _Extra) ->
-  {ok, State}.
+    {ok, State}.
 
 %%%===================================================================
 %%% Internal functions

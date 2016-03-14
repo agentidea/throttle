@@ -22,11 +22,11 @@
 
 %% gen_server callbacks
 -export([init/1,
-  handle_call/3,
-  handle_cast/2,
-  handle_info/2,
-  terminate/2,
-  code_change/3]).
+    handle_call/3,
+    handle_cast/2,
+    handle_info/2,
+    terminate/2,
+    code_change/3]).
 
 -define(SERVER, ?MODULE).
 
@@ -49,24 +49,24 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Fun_todo, Limit) ->
-  start_link(Fun_todo, drop, Limit).
+    start_link(Fun_todo, drop, Limit).
 start_link(Fun_todo, Fun_dropped, Limit) ->
-  gen_server:start_link(?MODULE, [Fun_todo, Fun_dropped, Limit], []).
+    gen_server:start_link(?MODULE, [Fun_todo, Fun_dropped, Limit], []).
 
 send_job(Pid, A) ->
-  gen_server:cast(Pid, {do, A}).
+    gen_server:cast(Pid, {do, A}).
 
 confirm_job(Pid) ->
-  gen_server:call(Pid, done).
+    gen_server:call(Pid, done).
 
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
 
 init([Fun_todo, Fun_dropped, Limit]) ->
-  {ok, Worker} = throttle_worker:start_link(self(), Fun_todo),
-  {ok, #state{counter = 0, worker = Worker, fun_dropped = Fun_dropped,
-    limit = Limit}}.
+    {ok, Worker} = throttle_worker:start_link(self(), Fun_todo),
+    {ok, #state{counter = 0, worker = Worker, fun_dropped = Fun_dropped,
+        limit = Limit}}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -76,10 +76,10 @@ init([Fun_todo, Fun_dropped, Limit]) ->
 %% was messed up and it is already zero, then we ignore it)
 %% @end
 %%--------------------------------------------------------------------
-handle_call(done, _From, #state{counter=Ct} = State) ->
-  {reply, ok, State#state{counter = max(0, Ct - 1)}};
+handle_call(done, _From, #state{counter = Ct} = State) ->
+    {reply, ok, State#state{counter = max(0, Ct - 1)}};
 handle_call(_Request, _From, State) ->
-  {reply, ok, State}.
+    {reply, ok, State}.
 
 %%--------------------------------------------------------------------
 %% @private
@@ -91,33 +91,33 @@ handle_call(_Request, _From, State) ->
 %% @end
 %%--------------------------------------------------------------------
 handle_cast({do, Arg}, State) ->
-  Ct = State#state.counter,
-  NCt = if Ct < State#state.limit ->
-      throttle_worker:start_job(State#state.worker, Arg),
-      Ct + 1;
-    true ->
-      do_apply(State#state.fun_dropped, Arg),
-      Ct
-  end,
-  {noreply, State#state{counter = NCt}};
+    Ct = State#state.counter,
+    NCt = if Ct < State#state.limit ->
+        throttle_worker:start_job(State#state.worker, Arg),
+        Ct + 1;
+              true ->
+                  do_apply(State#state.fun_dropped, Arg),
+                  Ct
+          end,
+    {noreply, State#state{counter = NCt}};
 handle_cast(_Request, State) ->
-  {noreply, State}.
+    {noreply, State}.
 
 handle_info(_Info, State) ->
-  {noreply, State}.
+    {noreply, State}.
 
 terminate(_Reason, _State) ->
-  ok.
+    ok.
 
 code_change(_OldVsn, State, _Extra) ->
-  {ok, State}.
+    {ok, State}.
 
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
 
 do_apply(drop, _) ->
-  ok;
+    ok;
 do_apply(F, Arg) ->
-  F(Arg).
+    F(Arg).
 
