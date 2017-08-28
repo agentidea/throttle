@@ -18,7 +18,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/2, start_link/3, send_job/2, confirm_job/1]).
+-export([start_link/2, start_link/3, start_link/4, send_job/2, confirm_job/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -50,8 +50,14 @@
 %%--------------------------------------------------------------------
 start_link(Fun_todo, Limit) ->
     start_link(Fun_todo, drop, Limit).
-start_link(Fun_todo, Fun_dropped, Limit) ->
-    gen_server:start_link(?MODULE, [Fun_todo, Fun_dropped, Limit], []).
+
+start_link(Fun_todo, Fun_dropped, Limit) when is_function(Fun_todo, 1)->
+    gen_server:start_link(?MODULE, [Fun_todo, Fun_dropped, Limit], []);
+start_link(Name, Fun_todo, Limit) when is_tuple(Name)->
+    start_link(Name, Fun_todo, drop, Limit).
+
+start_link(Name, Fun_todo, Fun_dropped, Limit) ->
+    gen_server:start_link(Name, ?MODULE, [Fun_todo, Fun_dropped, Limit], []).
 
 send_job(Pid, A) ->
     gen_server:cast(Pid, {do, A}).
